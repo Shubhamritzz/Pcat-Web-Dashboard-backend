@@ -130,7 +130,7 @@ export const deleteProduct = asynchandler(async (req, res) => {
 
 export const getproduct = asynchandler(async (req, res) => {
     try {
-        const data = await Product.findOne()
+        const data = await Product.find()
         if(!data) new ApiResponse (400, 'product not available')
         return res.
             status(200)
