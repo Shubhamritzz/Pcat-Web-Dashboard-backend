@@ -15,6 +15,7 @@ const submenuSchema = new Schema({
     }
 })
 
+
 const menuSchema = new Schema({
     title: {
         type: String,
