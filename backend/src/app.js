@@ -7,7 +7,7 @@ const app = express();
 app.use(cors(
     {
         origin: process.env.Cors_Origin ,
-        credentials: true, // Allow cookies to be sent
+        credentials: false, // Allow cookies to be sent
     }
 ))
 
@@ -25,10 +25,12 @@ app.use(cookieParser()); // ye cookie ko handle karne ke liye use hota hai
 import userRoute from './routes/user.routes.js';
 import navbarRoute from './routes/navbar.routes.js'
 import productRoute from './routes/product.route.js'
+import seo from './routes/seo.router.js';
 
 app.use('/api/v1/users', userRoute); // for calling api on /api/v1/user endpoint we use middleware because we have to call UserRoute from onother file
 
 app.use('/api/v1/navbar',navbarRoute)
 app.use('/api/v1/products',productRoute)
+app.use('/api/v1/seo',seo)
 
 export { app };
