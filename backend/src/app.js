@@ -6,8 +6,8 @@ const app = express();
 
 app.use(cors(
     {
-        origin: process.env.Cors_Origin ,
-        credentials: false, // Allow cookies to be sent
+        origin: process.env.CORS_ORIGINS ,
+        credentials: true, // Allow cookies to be sent
     }
 ))
 
