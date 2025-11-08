@@ -4,12 +4,28 @@ import cookieParser from 'cookie-parser';
 
 const app = express();
 
-app.use(cors(
-    {
-        origin: process.env.CORS_ORIGINS ,
-        credentials: true, // Allow cookies to be sent
-    }
-))
+// app.use(cors(
+//     {
+//         origin: process.env.CORS_ORIGINS ,
+//         credentials: true, // Allow cookies to be sent
+//     }
+// ))
+
+const allowedOrigins = process.env.CORS_ORIGINS?.split(",") || [];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("Blocked by CORS:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json({ // this is for json data limit and handle json data
     limit: '50mb'
