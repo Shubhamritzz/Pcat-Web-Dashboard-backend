@@ -6,23 +6,22 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Fix __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load Swagger
+dotenv.config({ path: "./.env" });
+
 const swaggerDocument = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../swagger-output.json"))
 );
-
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Load .env
-dotenv.config({ path: "./.env" });
+connectDB().catch((err) => console.log("DB connection failed", err));
 
-// Connect MongoDB only once
-connectDB().catch((err) => {
-  console.log("DB connection failed", err);
-});
+// ✅ Start only in local development
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 4000;
+  app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+}
 
 export default app;
