@@ -24,4 +24,6 @@ if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
 }
 
-export default app;
+export default app; // OK for serverless
+export { app };     // also export named for other uses (optional)
+
