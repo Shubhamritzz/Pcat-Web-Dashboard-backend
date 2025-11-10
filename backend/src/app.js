@@ -33,11 +33,6 @@ import navbarRoute from "./routes/navbar.routes.js";
 import productRoute from "./routes/product.route.js";
 import seo from "./routes/seo.router.js";
 
-// ✅ Test route
-app.get("/test", (req, res) => {
-  console.log("✅ TEST ROUTE HIT");
-  res.json({ ok: true });
-});
 
 // ✅ IMPORTANT: NO "/api" prefix here (Vercel adds it)
 app.use("/v1/users", userRoute);
