@@ -1,15 +1,11 @@
-import express from 'express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
-// app.use(cors(
-//     {
-//         origin: process.env.CORS_ORIGINS ,
-//         credentials: true, // Allow cookies to be sent
-//     }
-// ))
+// Debug log:
+console.log("✅ app.js loaded");
 
 const allowedOrigins = process.env.CORS_ORIGINS?.split(",") || [];
 
@@ -19,7 +15,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.log("Blocked by CORS:", origin);
+        console.log("❌ Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -27,26 +23,26 @@ app.use(
   })
 );
 
-app.use(express.json({ // this is for json data limit and handle json data
-    limit: '50mb'
-}));
-app.use (express.static('public')) // this is for static file like image css js
-app.use(express.urlencoded( // this is for form data limit and handle data comming from url
-    {extended:true, limit:'50mb'}
-))
-app.use(cookieParser()); // ye cookie ko handle karne ke liye use hota hai
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(cookieParser());
 
+// ✅ Routes
+import userRoute from "./routes/user.routes.js";
+import navbarRoute from "./routes/navbar.routes.js";
+import productRoute from "./routes/product.route.js";
+import seo from "./routes/seo.router.js";
 
-// import routes
-import userRoute from './routes/user.routes.js';
-import navbarRoute from './routes/navbar.routes.js'
-import productRoute from './routes/product.route.js'
-import seo from './routes/seo.router.js';
+// ✅ Test route
+app.get("/test", (req, res) => {
+  console.log("✅ TEST ROUTE HIT");
+  res.json({ ok: true });
+});
 
-app.use('/v1/users', userRoute); // for calling api on /api/v1/user endpoint we use middleware because we have to call UserRoute from onother file
+// ✅ IMPORTANT: NO "/api" prefix here (Vercel adds it)
+app.use("/v1/users", userRoute);
+app.use("/v1/navbar", navbarRoute);
+app.use("/v1/products", productRoute);
+app.use("/v1/seo", seo);
 
-app.use('/v1/navbar',navbarRoute)
-app.use('/v1/products',productRoute)
-app.use('/v1/seo',seo)
-
-export { app };
+export default app;

@@ -1,12 +1,9 @@
-import { Router } from "express";
-import { getNavbar, updateNavbar } from "../controllers/navbar.controller.js";
-import { upload } from './../middleweres/Multer.middleware.js';
+import express from "express";
+const router = express.Router();
 
-const router = Router()
+router.get("/getnavbar", (req, res) => {
+  console.log("✅ NAVBAR ROUTE HIT");
+  res.json({ ok: true, route: "navbar" });
+});
 
-router.route('/updatenavbar').put(
-    upload.single("url"),
-    updateNavbar)
-router.route('/getnavbar').get(getNavbar)
-
-export default router
+export default router;
