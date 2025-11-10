@@ -43,10 +43,10 @@ import navbarRoute from './routes/navbar.routes.js'
 import productRoute from './routes/product.route.js'
 import seo from './routes/seo.router.js';
 
-app.use('/api/v1/users', userRoute); // for calling api on /api/v1/user endpoint we use middleware because we have to call UserRoute from onother file
+app.use('/v1/users', userRoute); // for calling api on /api/v1/user endpoint we use middleware because we have to call UserRoute from onother file
 
-app.use('/api/v1/navbar',navbarRoute)
-app.use('/api/v1/products',productRoute)
-app.use('/api/v1/seo',seo)
+app.use('/v1/navbar',navbarRoute)
+app.use('/v1/products',productRoute)
+app.use('/v1/seo',seo)
 
 export { app };
