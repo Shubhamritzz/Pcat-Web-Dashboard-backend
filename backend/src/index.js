@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import connectDB from "./db/index.js";   // ✅ correct path
+import connectDB from "./db/index.js";   
 import app from "./app.js";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
@@ -19,9 +19,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 connectDB().catch((err) => console.log("DB connection failed", err));
 
-if (process.env.NODE_ENV !== "production") {
+// if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => console.log(`✅ Local server running on ${PORT}`));
-}
+// }
 
 export default app;
