@@ -30,12 +30,13 @@ import userRoute from "./routes/user.routes.js";
 import navbarRoute from "./routes/navbar.routes.js";
 import productRoute from "./routes/product.route.js";
 import seo from "./routes/seo.router.js";
-
+import singleproductRoute from "./routes/singleproduct.routes.js";
 
 
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/navbar", navbarRoute);
 app.use("/api/v1/products", productRoute);
 app.use("/api/v1/seo", seo);
+app.use("/api/v1/singleproduct", singleproductRoute);
 
 export default app;

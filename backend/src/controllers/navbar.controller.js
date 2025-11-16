@@ -21,7 +21,6 @@ const updateNavbar = asynchandler(async (req, res) => {
         let logoData
         if (localPathoflogo) {
             const uploadlogoonCloud = await uploadImagetoCloudinary(localPathoflogo)
-            console.log(uploadlogoonCloud.url,'cloudinary url');
             
             if (!uploadlogoonCloud?.url) throw new ApiError(400, 'image is reqired')
 
@@ -38,9 +37,6 @@ const updateNavbar = asynchandler(async (req, res) => {
             ...(logoData ? {logo:logoData}:{})
 
         }
-        // console.log(updatedData,'updateddata');
-        
-
 
 
         const navbar = await Navbar.findOneAndUpdate({}, updatedData, {

@@ -35,8 +35,8 @@ export const addnewProduct = asynchandler(async (req, res) => {
         const submenu = category.subItems.find(sub => sub.title === submenuTitle);
         if (!submenu) throw new ApiError(404, 'Submenu not found in this category')
 
-        const existingProduct = await Product.findOne({ title });
-        if (existingProduct) throw new ApiError(400, 'Product name is already there')
+        // const existingProduct = await Product.findOne({ title });
+        // if (existingProduct) throw new ApiError(400, 'Product name is already there')
 
         // Create new product
         const product = new Product({
@@ -63,7 +63,9 @@ export const addnewProduct = asynchandler(async (req, res) => {
 export const updateProduct = asynchandler(async (req, res) => {
     try {
 
-        const { title, description, url, categoryTitle, submenuTitle } = req.body;
+        const { title, description, url, category, submenu } = req.body;
+        console.log(req.body);
+        
         const { id } = req.params
 
         const viewImagePath = req.files?.viewImage?.[0]?.path
@@ -73,8 +75,8 @@ export const updateProduct = asynchandler(async (req, res) => {
             title,
             description,
             url,
-            categoryTitle,
-            submenuTitle
+            category,
+            submenu
         }
 
         if (viewImagePath) {
