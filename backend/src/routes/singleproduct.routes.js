@@ -5,14 +5,14 @@ import { addSingleProduct, deleteSingleProduct, getAllSingleProducts, updateSing
 const router = Router()
 
 router.route("/addsingleproduct").post(
-    upload.any(),
+    upload.array("Images", 10),
     addSingleProduct
 );
 
 router.route("/getsingleproducts").get(getAllSingleProducts);
 router.route("/deletesingleproduct/:id").delete(deleteSingleProduct);
 router.route("/updatesingleproduct/:id").put(
-    upload.any(),
+    upload.array("Images", 10),
     updateSingleProduct
 );
 

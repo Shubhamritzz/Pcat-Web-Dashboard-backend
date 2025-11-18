@@ -12,10 +12,9 @@ export const addSingleProduct = asynchandler(async (req, res) => {
             category,
             submenu,
             productName,
-            title,
-            title2,
             description,
-            description2
+            Specifications,
+            KeyFeatures,
         } = req.body;
 
 
@@ -37,7 +36,7 @@ export const addSingleProduct = asynchandler(async (req, res) => {
         const existingProduct = await Product.findOne({
             category,
             submenu,
-            title: productName   // matching your productSchema
+            title: productName
         });
 
         if (!existingProduct) {
@@ -49,43 +48,29 @@ export const addSingleProduct = asynchandler(async (req, res) => {
 
 
         // UPLOAD BANNER IMAGE
-
-        const bannerImageFile = req.files.find(f => f.fieldname === "bannerImage");
-        let bannerUpload;
-        if (bannerImageFile) {
-            bannerUpload = await uploadImagetoCloudinary(bannerImageFile.path);
-        }
-
-
-        //  BUILD productDetails[]
-
-        let productDetails = [];
-
-        const detailIndexes = new Set();
-        Object.keys(req.body).forEach(key => {
-            const match = key.match(/productDetails\[(\d+)\]/);
-            if (match) detailIndexes.add(match[1]);
-        });
-
-        for (let index of detailIndexes) {
-            const detailTitle = req.body[`productDetails[${index}].title`] || "";
-            const detailDesc = req.body[`productDetails[${index}].description`] || "";
-
-            const file = req.files.find(
-                f => f.fieldname === `productDetails[${index}].productimage`
-            );
-
-            let uploadedImage = null;
-            if (file) {
-                uploadedImage = await uploadImagetoCloudinary(file.path);
+        let uploadedImages = [];
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                const upload = await uploadImagetoCloudinary(file.path);
+                uploadedImages.push(upload.secure_url);
             }
-
-            productDetails.push({
-                title: detailTitle,
-                description: detailDesc,
-                productimage: uploadedImage?.url || null
-            });
         }
+
+
+        let specArray = [];
+
+        Object.keys(req.body).forEach(key => {
+            if (key.startsWith("Specifications")) {
+                const match = key.match(/Specifications\[(\d+)\]\.(\w+)/);
+                if (match) {
+                    const index = match[1];
+                    const field = match[2];
+
+                    specArray[index] = specArray[index] || {};
+                    specArray[index][field] = req.body[key];
+                }
+            }
+        });
 
 
         //  CREATE SingleProduct ENTRY
@@ -94,12 +79,10 @@ export const addSingleProduct = asynchandler(async (req, res) => {
             category,
             submenu,
             productName,
-            title,
-            title2,
             description,
-            description2,
-            bannerImage: bannerUpload?.url,
-            productDetails
+            KeyFeatures,
+            Specifications: specArray,
+            Images: uploadedImages,
         });
 
         await newSingleProduct.save();
@@ -114,18 +97,7 @@ export const addSingleProduct = asynchandler(async (req, res) => {
 });
 
 
-export const getAllSingleProducts = asynchandler(async (req, res) => {
-    try {
-        const products = await SingleProduct.find();
-        res.status(200).json(
-            new ApiResponse(200, products, "Single Products fetched successfully")
-        );
 
-    } catch (error) {
-        console.error("getting Single Product Error:", error);
-        throw new ApiError(500, error.message);
-    }
-})
 
 export const updateSingleProduct = asynchandler(async (req, res) => {
     try {
@@ -135,10 +107,7 @@ export const updateSingleProduct = asynchandler(async (req, res) => {
             category,
             submenu,
             productName,
-            title,
-            title2,
             description,
-            description2
         } = req.body;
 
         // FIND THE SINGLE PRODUCT
@@ -150,61 +119,63 @@ export const updateSingleProduct = asynchandler(async (req, res) => {
             category,
             submenu,
             productName,
-            title,
-            title2,
             description,
-            description2
+
         };
 
-        
-        // UPDATE BANNER IMAGE IF PROVIDED
-        
-        const bannerImageFile = req.files.find(f => f.fieldname === "bannerImage");
 
-        if (bannerImageFile) {
-            const uploadBanner = await uploadImagetoCloudinary(bannerImageFile.path);
-            if (!uploadBanner) throw new ApiError(400, "Banner upload failed");
-            updateData.bannerImage = uploadBanner.url;
-        }
+        // UPDATE IMAGE IF PROVIDED
 
-        
-        // HANDLE productDetails[] - UPDATE / NEW / REMOVE LOGIC
-        
-        let updatedDetails = [];
+        if (req.files && req.files.length > 0) {
+            const uploadedImages = [];
 
-        const detailIndexes = new Set();
-        Object.keys(req.body).forEach((key) => {
-            const match = key.match(/productDetails\[(\d+)\]/);
-            if (match) detailIndexes.add(match[1]);
-        });
-
-        for (let index of detailIndexes) {
-            const detailTitle = req.body[`productDetails[${index}].title`] || "";
-            const detailDesc = req.body[`productDetails[${index}].description`] || "";
-
-            const file = req.files.find(
-                f => f.fieldname === `productDetails[${index}].productimage`
-            );
-
-            let uploadedImage = null;
-
-            if (file) {
-                const uploadImg = await uploadImagetoCloudinary(file.path);
-                uploadedImage = uploadImg?.url;
+            for (const file of req.files) {
+                const upload = await uploadImagetoCloudinary(file.path);
+                uploadedImages.push(upload.secure_url);
             }
 
-            updatedDetails.push({
-                title: detailTitle,
-                description: detailDesc,
-                productimage: uploadedImage || singleProduct.productDetails?.[index]?.productimage || null
-            });
+            updateData.Images = uploadedImages;
         }
 
-        updateData.productDetails = updatedDetails;
 
-        
+        // HANDLE KeyFeatures
+         if (req.body.KeyFeatures) {
+            let features = req.body.KeyFeatures;
+
+            // If only 1 element comes as string → convert to array
+            if (typeof features === "string") {
+                features = [features];
+            }
+
+            updateData.KeyFeatures = features;
+        }
+
+        // HANDLE Specifications
+        let specArray = [];
+        const specIndexes = new Set();
+
+        Object.keys(req.body).forEach(key => {
+            const match = key.match(/Specifications\[(\d+)\]\.(\w+)/);
+            if (match) specIndexes.add(match[1]);
+        });
+
+        for (let index of specIndexes) {
+            const title = req.body[`Specifications[${index}].specTitle`] || "";
+            const desc = req.body[`Specifications[${index}].specDesc`] || "";
+
+            specArray[index] = {
+                specTitle: title,
+                specDesc: desc
+            };
+        }
+
+        if (specArray.length > 0) {
+            updateData.Specifications = specArray;
+        }
+
+
         // SAVE UPDATED SINGLE PRODUCT
-        
+
         const updatedSingleProduct = await SingleProduct.findByIdAndUpdate(
             id,
             { $set: updateData },
@@ -226,7 +197,7 @@ export const updateSingleProduct = asynchandler(async (req, res) => {
 
 
 export const deleteSingleProduct = asynchandler(async (req, res) => {
-     try {
+    try {
         const { id } = req.params
 
         const product = await SingleProduct.findById(id)
@@ -239,5 +210,18 @@ export const deleteSingleProduct = asynchandler(async (req, res) => {
             .json(new ApiResponse(200, null, "Product deleted successfully"));
     } catch (error) {
         throw new ApiError(500, error.message)
+    }
+})
+
+export const getAllSingleProducts = asynchandler(async (req, res) => {
+    try {
+        const products = await SingleProduct.find();
+        res.status(200).json(
+            new ApiResponse(200, products, "Single Products fetched successfully")
+        );
+
+    } catch (error) {
+        console.error("getting Single Product Error:", error);
+        throw new ApiError(500, error.message);
     }
 })

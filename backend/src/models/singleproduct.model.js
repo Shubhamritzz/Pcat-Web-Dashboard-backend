@@ -11,33 +11,18 @@ const singleProductSchema = new Schema({
     productName:{
         type:String
     },
-    title:{
-        type: String,
-    },
-    title2:{
-        type: String,
-    },
     description:{
         type: String
     },
-    description2:{
+    Images:[{
         type: String
-    },
-    bannerImage:{
-        type: String
-    },
+    }],
+    Specifications:[{
+        specTitle: {type: String},
+        specDesc: {type: String}
+    }],
 
-    productDetails: [{
-        title:{
-            type: String
-        },
-        description:{
-            type: String
-        },
-        productimage:{
-            type: String
-        },
-    }]
+    KeyFeatures: [{type:String}]
 
 
 }, { timestamps: true })
